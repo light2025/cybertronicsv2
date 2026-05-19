@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-xp: 'Tahoma', 'Microsoft Sans Serif', Arial, sans-serif;
+
+  /* XP Luna Blue — precise palette */
+  --color-xp-desktop: #008080;
+  --color-xp-luna-blue: #0a246a;
+  --color-xp-luna-blue-mid: #1a56b8;
+  --color-xp-luna-blue-light: #4590e0;
+  --color-xp-luna-green: #3a843a;
+  --color-xp-luna-green-light: #5cb85c;
+  --color-xp-tray: #0c3882;
+  --color-xp-win-border: #0a246a;
+  --color-xp-win-frame: #3a6ea5;
+  --color-xp-close-btn: #c44030;
+  --color-xp-sidebar-blue: #1d4fa8;
+  --color-xp-button-face: #ece9d8;
+  --color-xp-panel-header: #0a246a;
+  --color-xp-select: #316ac5;
+
+  /* Admin / brand accent */
+  --color-cyber: #00d4ff;
+  --color-cyber-dark: #00a8d4;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}

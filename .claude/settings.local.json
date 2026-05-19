@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(update-config)",
+      "Bash(dir /B)",
+      "PowerShell(Get-ChildItem -Path \"E:\\\\Workspace\\\\Light\\\\cybertronics\\\\app\" -Recurse -File | ForEach-Object { $_.FullName.Replace\\(\"E:\\\\Workspace\\\\Light\\\\cybertronics\\\\\",\"\"\\) })",
+      "PowerShell(Get-ChildItem -Path \"E:\\\\Workspace\\\\Light\\\\cybertronics\\\\components\" -Recurse -File | ForEach-Object { $_.FullName.Replace\\(\"E:\\\\Workspace\\\\Light\\\\cybertronics\\\\\",\"\"\\) })",
+      "PowerShell(Get-ChildItem -Path \"E:\\\\Workspace\\\\Light\\\\cybertronics\\\\lib\" -Recurse -File | ForEach-Object { $_.FullName.Replace\\(\"E:\\\\Workspace\\\\Light\\\\cybertronics\\\\\",\"\"\\) })",
+      "PowerShell(Get-ChildItem -Path \"E:\\\\Workspace\\\\Light\\\\cybertronics\\\\types\",\"E:\\\\Workspace\\\\Light\\\\cybertronics\\\\docs\",\"E:\\\\Workspace\\\\Light\\\\cybertronics\\\\public\" -Recurse -File | ForEach-Object { $_.FullName.Replace\\(\"E:\\\\Workspace\\\\Light\\\\cybertronics\\\\\",\"\"\\) })",
+      "Bash(findstr /I \"readme\")",
+      "Bash(npm run *)",
+      "Bash(npm install *)",
+      "Bash(npm list *)",
+      "Bash(git config *)",
+      "Bash(gh auth *)",
+      "PowerShell(gh *)",
+      "Bash(git init *)",
+      "Bash(git add *)"
+    ]
+  },
+  "outputStyle": "Explanatory"
+}

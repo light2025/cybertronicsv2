@@ -1,0 +1,34 @@
+'use client';
+
+import type { AppId, WindowPayload } from '@/types/xp';
+import { apps } from '@/components/xp/appRegistry';
+import { nokiaApps } from './apps';
+
+type Props = { appId: AppId; payload?: WindowPayload };
+
+export default function NokiaApp({ appId, payload }: Props) {
+  const def = apps[appId];
+  const NokiaImpl = nokiaApps[appId];
+
+  if (NokiaImpl) {
+    return (
+      <div className="flex-1 min-h-0 flex flex-col">
+        <NokiaImpl payload={payload} />
+      </div>
+    );
+  }
+
+  const Icon = def.Icon;
+
+  return (
+    <div className="flex-1 flex flex-col items-center justify-center px-6 text-center gap-3">
+      <Icon className="w-14 h-14 text-[#1a4a8a]" strokeWidth={1.3} />
+      <div className="text-[14px] font-bold text-[#0a3060]">{def.title}</div>
+      <div className="text-[11px] text-[#4a5878] max-w-[16rem] leading-relaxed">
+        This app is being ported to Mobile Mode.
+        <br />
+        Check back soon.
+      </div>
+    </div>
+  );
+}
