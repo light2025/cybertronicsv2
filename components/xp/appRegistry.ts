@@ -18,11 +18,16 @@ import {
   TerminalSquare,
   HelpCircle,
   Receipt,
+  Globe,
+  Calculator as CalculatorIcon,
+  Gamepad2,
+  Phone,
   type LucideIcon,
 } from 'lucide-react';
 
 import type { AppId, WindowPayload } from '@/types/xp';
 import MyComputer from './apps/MyComputer';
+import InternetExplorer from './apps/InternetExplorer';
 import LifestyleFolder from './apps/LifestyleFolder';
 import ProductDetail from './apps/ProductDetail';
 import Gallery from './apps/Gallery';
@@ -37,6 +42,9 @@ import Contact from './apps/Contact';
 import Help from './apps/Help';
 import Cart from './apps/Cart';
 import Checkout from './apps/Checkout';
+import Calculator from './apps/Calculator';
+import Snake from './apps/Snake';
+import ComingSoon from './apps/ComingSoon';
 
 export type AppDef = {
   title: string;
@@ -54,12 +62,19 @@ export const apps: Record<AppId, AppDef> = {
     defaultSize: { w: 580, h: 400 },
     showInStartMenu: true,
   },
+  ie: {
+    title: 'Internet Explorer',
+    Icon: Globe,
+    Component: InternetExplorer,
+    defaultSize: { w: 760, h: 560 },
+    showInStartMenu: true,
+  },
   lifestyle: {
     title: 'Lifestyle',
     Icon: ShoppingBag,
     Component: LifestyleFolder,
     defaultSize: { w: 640, h: 440 },
-    showInStartMenu: true,
+    showInStartMenu: false,
   },
   gallery: {
     title: 'Gallery',
@@ -150,6 +165,34 @@ export const apps: Record<AppId, AppDef> = {
     Icon: Receipt,
     Component: Checkout,
     defaultSize: { w: 560, h: 480 },
+    showInStartMenu: false,
+  },
+  calculator: {
+    title: 'Calculator',
+    Icon: CalculatorIcon,
+    Component: Calculator,
+    defaultSize: { w: 300, h: 460 },
+    showInStartMenu: true,
+  },
+  snake: {
+    title: 'Snake',
+    Icon: Gamepad2,
+    Component: Snake,
+    defaultSize: { w: 380, h: 540 },
+    showInStartMenu: true,
+  },
+  call: {
+    title: 'Call',
+    Icon: Phone,
+    Component: ComingSoon,
+    defaultSize: { w: 360, h: 360 },
+    showInStartMenu: false,
+  },
+  mail: {
+    title: 'Mail',
+    Icon: Mail,
+    Component: ComingSoon,
+    defaultSize: { w: 360, h: 400 },
     showInStartMenu: false,
   },
 };

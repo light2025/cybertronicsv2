@@ -1,11 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { Minus, Plus, X, ShoppingCart } from 'lucide-react';
+import { Minus, Plus, X, ShoppingCart, BookmarkPlus } from 'lucide-react';
 import { useCartStore } from '@/lib/store/cartStore';
 import { useDataStore } from '@/lib/store/dataStore';
+import { useSaveForLaterStore } from '@/lib/store/saveForLaterStore';
 import { useXpStore } from '@/lib/store/xpStore';
 import { formatPrice } from '@/lib/utils';
+import { useIE } from './ie/IEContext';
 
 const PANEL_HEADER = 'linear-gradient(to bottom, #4a86d8 0%, #2060c0 50%, #1448a8 100%)';
 const FREE_SHIPPING_THRESHOLD = 200;
@@ -24,13 +26,28 @@ const BTN_PRIMARY = {
 };
 
 export default function Cart() {
-  const items = useCartStore((s) => s.items);
-  const remove = useCartStore((s) => s.remove);
+  const items       = useCartStore((s) => s.items);
+  const addToCart   = useCartStore((s) => s.add);
+  const remove      = useCartStore((s) => s.remove);
   const setQuantity = useCartStore((s) => s.setQuantity);
-  const clear = useCartStore((s) => s.clear);
+  const clear       = useCartStore((s) => s.clear);
+
+  const savedItems = useSaveForLaterStore((s) => s.items);
+  const saveItem   = useSaveForLaterStore((s) => s.save);
+  const unsaveItem = useSaveForLaterStore((s) => s.unsave);
 
   const products = useDataStore((s) => s.products);
-  const openApp = useXpStore((s) => s.open);
+  const openApp  = useXpStore((s) => s.open);
+  const ie       = useIE();
+
+  const goShop = () => {
+    if (ie) ie.navigate('cybertronics://shop');
+    else openApp('ie', { title: 'Internet Explorer', payload: { url: 'cybertronics://shop' } });
+  };
+  const goCheckout = () => {
+    if (ie) ie.navigate('cybertronics://checkout');
+    else openApp('checkout', { title: 'Checkout' });
+  };
 
   const lines = items
     .map((line) => {
@@ -41,11 +58,33 @@ export default function Cart() {
     })
     .filter((x): x is NonNullable<typeof x> => x !== null);
 
-  const subtotal = lines.reduce((sum, l) => sum + l.total, 0);
-  const shipping = subtotal === 0 ? 0 : subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FLAT;
-  const total = subtotal + shipping;
+  const savedLines = savedItems
+    .map((saved) => {
+      const product = products.find((p) => p.id === saved.productId);
+      if (!product) return null;
+      const unit = product.discountPrice ?? product.price;
+      return { saved, product, unit };
+    })
+    .filter((x): x is NonNullable<typeof x> => x !== null);
 
-  if (lines.length === 0) {
+  const subtotal  = lines.reduce((sum, l) => sum + l.total, 0);
+  const itemCount = lines.reduce((n, l) => n + l.line.quantity, 0);
+  const shipping  = subtotal === 0 ? 0 : subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FLAT;
+  const total     = subtotal + shipping;
+
+  const moveToSaved = (productId: string, opts: { size?: string; color?: string }) => {
+    saveItem(productId, opts);
+    remove(productId, opts);
+  };
+  const moveToCart = (productId: string, opts: { size?: string; color?: string }) => {
+    addToCart(productId, 1, opts);
+    unsaveItem(productId, opts);
+  };
+
+  const hasCart  = lines.length > 0;
+  const hasSaved = savedLines.length > 0;
+
+  if (!hasCart && !hasSaved) {
     return (
       <div className="flex flex-col h-full" style={{ background: '#ece9d8' }}>
         <div
@@ -57,13 +96,13 @@ export default function Cart() {
         <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center px-6">
           <ShoppingCart className="w-12 h-12 text-gray-400" strokeWidth={1.3} />
           <div className="text-[12px] text-gray-700 font-bold">Your cart is empty.</div>
-          <div className="text-[11px] text-gray-500">Open the Lifestyle folder to browse products.</div>
+          <div className="text-[11px] text-gray-500">Browse the shop to find something.</div>
           <button
-            onClick={() => openApp('lifestyle', { title: 'Lifestyle' })}
+            onClick={goShop}
             className="mt-2 px-4 py-1 text-[11px] text-gray-900 rounded-sm"
             style={BTN_STYLE}
           >
-            Browse Lifestyle
+            Browse the shop
           </button>
         </div>
       </div>
@@ -78,14 +117,12 @@ export default function Cart() {
       >
         <span>🛒 Shopping Cart</span>
         <span className="opacity-80 font-normal">
-          {lines.reduce((n, l) => n + l.line.quantity, 0)} item
-          {lines.reduce((n, l) => n + l.line.quantity, 0) !== 1 ? 's' : ''}
+          {itemCount} item{itemCount !== 1 ? 's' : ''}
         </span>
       </div>
 
-      {/* Lines */}
       <div className="flex-1 overflow-auto p-2 space-y-1.5">
-        {lines.map(({ line, product, unit, total: lineTotal }) => {
+        {hasCart && lines.map(({ line, product, unit, total: lineTotal }) => {
           const variantOpts = { size: line.selectedSize, color: line.selectedColor };
           const variantBits = [line.selectedSize, line.selectedColor].filter(Boolean);
           return (
@@ -99,18 +136,14 @@ export default function Cart() {
                 style={{ border: '1px solid #ccc' }}
               >
                 {product.images[0] ? (
-                  <img
-                    src={product.images[0]}
-                    alt={product.title}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full grid place-items-center text-xl">🖼️</div>
                 )}
               </div>
 
               <div className="flex-1 min-w-0 flex flex-col gap-1">
-                <div className="flex items-start justify-between gap-2">
+                <div className="flex items-start justify-between gap-1">
                   <div className="flex-1 min-w-0">
                     <div className="text-[11px] font-bold text-gray-900 leading-tight line-clamp-2">
                       {product.title}
@@ -121,14 +154,24 @@ export default function Cart() {
                       </div>
                     )}
                   </div>
-                  <button
-                    onClick={() => remove(product.id, variantOpts)}
-                    className="shrink-0 w-5 h-5 grid place-items-center rounded-sm hover:bg-red-100 text-gray-500 hover:text-red-600"
-                    aria-label="remove"
-                    title="Remove from cart"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
+                  <div className="flex shrink-0 gap-0.5">
+                    <button
+                      onClick={() => moveToSaved(product.id, variantOpts)}
+                      className="w-5 h-5 grid place-items-center rounded-sm text-gray-500 hover:bg-blue-100 hover:text-blue-700"
+                      aria-label="Save for later"
+                      title="Save for later"
+                    >
+                      <BookmarkPlus className="w-3 h-3" />
+                    </button>
+                    <button
+                      onClick={() => remove(product.id, variantOpts)}
+                      className="w-5 h-5 grid place-items-center rounded-sm text-gray-500 hover:bg-red-100 hover:text-red-600"
+                      aria-label="Remove from cart"
+                      title="Remove from cart"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1">
@@ -157,46 +200,122 @@ export default function Cart() {
             </div>
           );
         })}
+
+        {!hasCart && (
+          <div className="text-center text-[11px] text-gray-500 py-6">
+            Your cart is empty. Move items from <em className="not-italic font-semibold">Saved for later</em> below to start a new order.
+          </div>
+        )}
+
+        {hasSaved && (
+          <div
+            className="pt-3 mt-3"
+            style={{ borderTop: '1px dashed #6896d2' }}
+          >
+            <div className="flex items-center justify-between mb-2 px-1">
+              <h2 className="text-[11px] font-bold text-[#0a3060] uppercase tracking-wide">
+                Saved for later ({savedLines.length})
+              </h2>
+            </div>
+            <div className="space-y-1.5">
+              {savedLines.map(({ saved, product, unit }) => {
+                const variantOpts = { size: saved.selectedSize, color: saved.selectedColor };
+                const variantBits = [saved.selectedSize, saved.selectedColor].filter(Boolean);
+                return (
+                  <div
+                    key={`${product.id}|${saved.selectedSize ?? ''}|${saved.selectedColor ?? ''}`}
+                    className="flex gap-2 p-2 bg-white"
+                    style={{ border: '1px solid #cdd8e8', borderRadius: 2 }}
+                  >
+                    <div
+                      className="w-12 h-12 shrink-0 overflow-hidden bg-gray-100"
+                      style={{ border: '1px solid #ccc' }}
+                    >
+                      {product.images[0] ? (
+                        <img src={product.images[0]} alt={product.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full grid place-items-center text-lg">🖼️</div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0 flex flex-col gap-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[11px] font-bold text-gray-900 leading-tight line-clamp-2">
+                            {product.title}
+                          </div>
+                          {variantBits.length > 0 && (
+                            <div className="text-[10px] text-gray-500 mt-0.5">
+                              {variantBits.join(' · ')}
+                            </div>
+                          )}
+                          <div className="text-[10px] text-gray-700 mt-0.5">{formatPrice(unit)}</div>
+                        </div>
+                        <button
+                          onClick={() => unsaveItem(product.id, variantOpts)}
+                          className="shrink-0 w-5 h-5 grid place-items-center rounded-sm text-gray-500 hover:bg-red-100 hover:text-red-600"
+                          aria-label="Remove from saved"
+                          title="Remove from saved"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                      <div className="flex items-center justify-end">
+                        <button
+                          onClick={() => moveToCart(product.id, variantOpts)}
+                          className="px-2 py-0.5 text-[10px] font-bold text-gray-900 rounded-sm inline-flex items-center gap-1"
+                          style={BTN_STYLE}
+                        >
+                          <ShoppingCart className="w-2.5 h-2.5" />
+                          Move to cart
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Footer / totals */}
-      <div
-        className="shrink-0 p-3 space-y-1 text-[11px]"
-        style={{ background: '#dce8f8', borderTop: '1px solid #6896d2' }}
-      >
-        <div className="flex justify-between text-gray-700">
-          <span>Subtotal</span>
-          <span>{formatPrice(subtotal)}</span>
-        </div>
-        <div className="flex justify-between text-gray-700">
-          <span>Shipping {shipping === 0 && subtotal > 0 && <em className="not-italic text-emerald-700">(free over {formatPrice(FREE_SHIPPING_THRESHOLD)})</em>}</span>
-          <span>{shipping === 0 ? 'Free' : formatPrice(shipping)}</span>
-        </div>
+      {hasCart && (
         <div
-          className="flex justify-between font-bold text-gray-900 pt-1 mt-1"
-          style={{ borderTop: '1px solid #6896d2' }}
+          className="shrink-0 p-3 space-y-1 text-[11px]"
+          style={{ background: '#dce8f8', borderTop: '1px solid #6896d2' }}
         >
-          <span>Total</span>
-          <span>{formatPrice(total)}</span>
-        </div>
+          <div className="flex justify-between text-gray-700">
+            <span>Subtotal</span>
+            <span>{formatPrice(subtotal)}</span>
+          </div>
+          <div className="flex justify-between text-gray-700">
+            <span>
+              Shipping{' '}
+              {shipping === 0 && subtotal > 0 && (
+                <em className="not-italic text-emerald-700">
+                  (free over {formatPrice(FREE_SHIPPING_THRESHOLD)})
+                </em>
+              )}
+            </span>
+            <span>{shipping === 0 ? 'Free' : formatPrice(shipping)}</span>
+          </div>
+          <div
+            className="flex justify-between font-bold text-gray-900 pt-1 mt-1"
+            style={{ borderTop: '1px solid #6896d2' }}
+          >
+            <span>Total</span>
+            <span>{formatPrice(total)}</span>
+          </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2">
-          <button
-            onClick={clear}
-            className="px-3 py-1 text-[11px] text-gray-900 rounded-sm"
-            style={BTN_STYLE}
-          >
-            Clear cart
-          </button>
-          <button
-            onClick={() => openApp('checkout', { title: 'Checkout' })}
-            className="px-4 py-1 text-[11px] rounded-sm font-bold"
-            style={BTN_PRIMARY}
-          >
-            Checkout →
-          </button>
+          <div className="flex items-center justify-end gap-2 pt-2">
+            <button onClick={clear} className="px-3 py-1 text-[11px] text-gray-900 rounded-sm" style={BTN_STYLE}>
+              Clear cart
+            </button>
+            <button onClick={goCheckout} className="px-4 py-1 text-[11px] rounded-sm font-bold" style={BTN_PRIMARY}>
+              Checkout →
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

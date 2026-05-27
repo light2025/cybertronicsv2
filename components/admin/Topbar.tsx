@@ -1,9 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { ExternalLink, ChevronRight } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { ExternalLink, ChevronRight, LogOut, User as UserIcon } from 'lucide-react';
 import { useDataStore } from '@/lib/store/dataStore';
+import { useAuth, signOut } from '@/lib/supabase/auth';
+import { isSupabaseConfigured } from '@/lib/supabase/client';
 
 const TITLES: Record<string, string> = {
   '/admin': 'Dashboard',
@@ -12,6 +14,7 @@ const TITLES: Record<string, string> = {
   '/admin/products': 'Products',
   '/admin/products/new': 'New Product',
   '/admin/categories': 'Categories',
+  '/admin/custom-groups': 'Custom Groups',
 };
 
 function deriveCrumbs(
@@ -40,6 +43,13 @@ const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export default function Topbar() {
   const pathname = usePathname() ?? '/admin';
+  const router = useRouter();
+  const { user, role } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.replace('/auth/sign-in');
+  };
 
   const productMatch = pathname.match(/^\/admin\/products\/([^/]+)$/);
   const productId = productMatch?.[1];
@@ -92,13 +102,36 @@ export default function Topbar() {
         <h1 className="text-[16px] font-bold text-gray-900 leading-none">{title}</h1>
       </div>
 
-      <Link
-        href="/"
-        className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-[12px] font-medium text-gray-700 hover:bg-gray-100 border border-gray-200"
-      >
-        <ExternalLink className="w-3.5 h-3.5" />
-        View storefront
-      </Link>
+      <div className="flex items-center gap-2">
+        {isSupabaseConfigured() && user && (
+          <div className="flex items-center gap-2 px-2.5 h-9 rounded-lg bg-gray-50 border border-gray-200">
+            <UserIcon className="w-3.5 h-3.5 text-gray-500" />
+            <span className="text-[12px] text-gray-700 font-medium truncate max-w-[160px]">
+              {user.email}
+            </span>
+            {role && role !== 'admin' && (
+              <span className="text-[9px] uppercase tracking-wider text-amber-600 font-semibold">
+                {role}
+              </span>
+            )}
+            <button
+              onClick={handleSignOut}
+              className="text-gray-500 hover:text-red-600 ml-1"
+              title="Sign out"
+              aria-label="Sign out"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-[12px] font-medium text-gray-700 hover:bg-gray-100 border border-gray-200"
+        >
+          <ExternalLink className="w-3.5 h-3.5" />
+          View storefront
+        </Link>
+      </div>
     </header>
   );
 }

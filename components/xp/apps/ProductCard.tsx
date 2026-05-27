@@ -4,6 +4,7 @@
 import { useXpStore } from '@/lib/store/xpStore';
 import { formatPrice } from '@/lib/utils';
 import type { Product } from '@/types';
+import { useIE } from './ie/IEContext';
 
 const STOCK_LABEL: Record<Product['stockStatus'], string> = {
   in_stock: 'In stock',
@@ -18,10 +19,19 @@ const STOCK_COLOR: Record<Product['stockStatus'], string> = {
 
 export default function ProductCard({ product }: { product: Product }) {
   const open = useXpStore((s) => s.open);
+  const ie = useIE();
+
+  const onOpen = () => {
+    if (ie) {
+      ie.navigate(`cybertronics://product/${product.slug}`);
+    } else {
+      open('product-detail', { payload: { productId: product.id } });
+    }
+  };
 
   return (
     <button
-      onClick={() => open('product-detail', { payload: { productId: product.id } })}
+      onClick={onOpen}
       className="flex flex-col text-left focus:outline-none group"
       style={{ border: '1px solid #aac', borderRadius: 2, background: '#fff', overflow: 'hidden' }}
     >

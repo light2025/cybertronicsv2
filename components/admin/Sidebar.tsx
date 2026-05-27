@@ -8,6 +8,7 @@ import {
   Package,
   Tag,
   Receipt,
+  Bookmark,
   type LucideIcon,
 } from 'lucide-react';
 import { useDataStore, useHydrated } from '@/lib/store/dataStore';
@@ -45,6 +46,12 @@ const NAV: NavItem[] = [
     label: 'Categories',
     Icon: Tag,
     match: (p) => p.startsWith('/admin/categories'),
+  },
+  {
+    href: '/admin/custom-groups',
+    label: 'Custom Groups',
+    Icon: Bookmark,
+    match: (p) => p.startsWith('/admin/custom-groups'),
   },
 ];
 

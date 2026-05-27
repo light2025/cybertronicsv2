@@ -3,7 +3,7 @@
 import { PowerIcon, LogOut } from 'lucide-react';
 import { useXpStore } from '@/lib/store/xpStore';
 import { apps, startMenuApps } from './appRegistry';
-import type { AppId } from '@/types/xp';
+import type { AppId, WindowPayload } from '@/types/xp';
 
 const HEADER_BG =
   'linear-gradient(to bottom, #4a90d0 0%, #1855a8 55%, #0a3888 100%)';
@@ -14,14 +14,16 @@ const SIDEBAR_BG =
 const FOOTER_BG =
   'linear-gradient(to bottom, #1248a8 0%, #0a3480 100%)';
 
-const SIDEBAR_LINKS: { label: string; id: AppId }[] = [
-  { label: 'My Shop', id: 'lifestyle' },
+type SidebarLink = { label: string; id: AppId; payload?: WindowPayload };
+
+const SIDEBAR_LINKS: SidebarLink[] = [
+  { label: 'My Shop', id: 'ie', payload: { url: 'cybertronics://shop' } },
   { label: 'Gallery', id: 'gallery' },
   { label: 'About Us', id: 'about' },
   { label: 'Contact Us', id: 'contact' },
 ];
 
-const SIDEBAR_LINKS2: { label: string; id: AppId }[] = [
+const SIDEBAR_LINKS2: SidebarLink[] = [
   { label: 'Notepad', id: 'notepad' },
   { label: 'Paint', id: 'paint' },
   { label: 'Settings', id: 'settings' },
@@ -39,6 +41,16 @@ export default function StartMenu() {
   const handleOpen = (id: AppId) => {
     const a = apps[id];
     openApp(id, { title: a.title, w: a.defaultSize.w, h: a.defaultSize.h });
+  };
+
+  const handleLink = (link: SidebarLink) => {
+    const a = apps[link.id];
+    openApp(link.id, {
+      title: link.payload ? link.label : a.title,
+      w: a.defaultSize.w,
+      h: a.defaultSize.h,
+      payload: link.payload,
+    });
   };
 
   return (
@@ -113,23 +125,23 @@ export default function StartMenu() {
             className="flex flex-col py-2 px-1.5 overflow-y-auto"
             style={{ background: SIDEBAR_BG, flex: '0 0 44%' }}
           >
-            {SIDEBAR_LINKS.map(({ label, id }) => (
+            {SIDEBAR_LINKS.map((link) => (
               <button
-                key={id}
-                onClick={() => handleOpen(id)}
+                key={link.label}
+                onClick={() => handleLink(link)}
                 className="px-2 py-[5px] text-left text-[11px] text-white rounded hover:bg-white/20 hover:underline"
               >
-                {label}
+                {link.label}
               </button>
             ))}
             <div className="my-1.5 border-t border-white/20" />
-            {SIDEBAR_LINKS2.map(({ label, id }) => (
+            {SIDEBAR_LINKS2.map((link) => (
               <button
-                key={id}
-                onClick={() => handleOpen(id)}
+                key={link.label}
+                onClick={() => handleLink(link)}
                 className="px-2 py-[5px] text-left text-[11px] text-white rounded hover:bg-white/20 hover:underline"
               >
-                {label}
+                {link.label}
               </button>
             ))}
           </div>

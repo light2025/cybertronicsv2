@@ -1,11 +1,17 @@
 // Seed data. Deterministic ids + timestamps so module is pure.
 // TODO(db): replace with real Supabase rows + migrations.
 
-import type { Category, Product, ProductGroup } from '@/types';
+import type { Category, CustomGroup, Product, ProductGroup } from '@/types';
 
 const SEED_AT = '2026-05-08T00:00:00.000Z';
 
 const img = (seed: string) => `https://picsum.photos/seed/${seed}/800/800`;
+
+export const seedCustomGroups: CustomGroup[] = [
+  { id: 'cgrp_new_arrivals', title: 'New Arrivals', slug: 'new-arrivals', description: 'Recently added pieces.' },
+  { id: 'cgrp_lifestyles',   title: 'Lifestyles',   slug: 'lifestyles',   description: 'Curated lifestyle picks.' },
+  { id: 'cgrp_best_sellers', title: 'Best Sellers', slug: 'best-sellers', description: 'Top-moving SKUs this month.' },
+];
 
 export const seedCategories: Category[] = [
   { id: 'cat_tshirts', title: 'T-Shirts', slug: 't-shirts', parentCategory: null, icon: '👕' },

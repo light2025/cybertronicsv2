@@ -4,7 +4,7 @@ import StartMenu from '@/components/xp/StartMenu';
 import WallpaperLayer from '@/components/xp/WallpaperLayer';
 import BootScreen from '@/components/xp/BootScreen';
 import SearchOverlay from '@/components/xp/SearchOverlay';
-import NokiaShell from '@/components/nokia/NokiaShell';
+import MotoShell from '@/components/motorola/MotoShell';
 
 export default function XPLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -20,9 +20,9 @@ export default function XPLayout({ children }: { children: React.ReactNode }) {
         <BootScreen />
       </div>
 
-      {/* Nokia phone shell — under md */}
+      {/* Motorola A1000 shell — under md */}
       <div className="md:hidden">
-        <NokiaShell />
+        <MotoShell />
       </div>
     </main>
   );

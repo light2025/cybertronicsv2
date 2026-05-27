@@ -15,16 +15,25 @@ export type Product = {
   slug: string;
   description: string;
   category: CategoryId;
+  subCategory?: CategoryId | null;
+  customGroups?: string[];
   price: number;
   discountPrice: number | null;
   currency: Currency;
   images: string[];
+  primaryImageIndex?: number;
   videoUrl: string | null;
+  videos?: string[];
   tags: string[];
+  seoTags?: string[];
   stockStatus: StockStatus;
+  stockCount?: number;
   isFeatured: boolean;
+  isNewArrival?: boolean;
+  isBestSelling?: boolean;
   availableSizes?: string[];
   availableColors?: string[];
+  barcode?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -48,6 +57,13 @@ export type Category = {
   icon: string | null;
 };
 
+export type CustomGroup = {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+};
+
 export type OrderStatus = 'cart' | 'pending' | 'paid' | 'shipped' | 'cancelled';
 
 export type OrderItem = {
@@ -60,6 +76,8 @@ export type OrderItem = {
   selectedColor?: string;
 };
 
+export type PaymentMethod = 'tabby' | 'tamara' | 'card' | 'cod';
+
 export type Order = {
   id: string;
   customerName: string;
@@ -70,6 +88,7 @@ export type Order = {
   discountTotal: number;
   total: number;
   status: OrderStatus;
+  paymentMethod?: PaymentMethod;
   createdAt: string;
 };
 

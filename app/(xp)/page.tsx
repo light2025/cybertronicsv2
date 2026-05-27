@@ -7,7 +7,7 @@ export default function XPDesktop() {
   return (
     <div className="absolute inset-0 p-4 grid grid-flow-col grid-rows-[repeat(auto-fill,minmax(5rem,auto))] gap-2 content-start justify-start">
       <DesktopIcon appId="my-computer" />
-      <DesktopIcon appId="lifestyle" />
+      <DesktopIcon appId="ie" />
       <DesktopIcon appId="gallery" />
       <DesktopIcon appId="notepad" />
       <DesktopIcon appId="terminal" />

@@ -2,6 +2,7 @@
 
 export type AppId =
   | 'my-computer'
+  | 'ie'
   | 'lifestyle'
   | 'gallery'
   | 'notepad'
@@ -15,7 +16,11 @@ export type AppId =
   | 'help'
   | 'product-detail'
   | 'cart'
-  | 'checkout';
+  | 'checkout'
+  | 'calculator'
+  | 'snake'
+  | 'call'
+  | 'mail';
 
 export type WindowPayload = Record<string, unknown> | undefined;
 

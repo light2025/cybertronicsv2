@@ -23,7 +23,7 @@ type FolderEntry = {
 };
 
 const folders: FolderEntry[] = [
-  { label: 'Lifestyle', appId: 'lifestyle', Icon: ShoppingBag },
+  { label: 'Shop', appId: 'ie', Icon: ShoppingBag, payload: { url: 'cybertronics://shop' } },
   { label: 'Cart', appId: 'cart', Icon: ShoppingCart },
   { label: 'Gallery', appId: 'gallery', Icon: ImageIcon },
   { label: 'About Us', appId: 'about', Icon: Info },

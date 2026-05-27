@@ -6,7 +6,8 @@ import { useCartStore } from '@/lib/store/cartStore';
 import { useDataStore } from '@/lib/store/dataStore';
 import { useXpStore } from '@/lib/store/xpStore';
 import { formatPrice, nowIso, uid } from '@/lib/utils';
-import type { Order, OrderItem } from '@/types';
+import type { Order, OrderItem, PaymentMethod } from '@/types';
+import { useIE } from './ie/IEContext';
 
 const PANEL_HEADER = 'linear-gradient(to bottom, #4a86d8 0%, #2060c0 50%, #1448a8 100%)';
 const FREE_SHIPPING_THRESHOLD = 200;
@@ -29,20 +30,43 @@ const INPUT_STYLE = {
   boxShadow: 'inset 1px 1px 1px rgba(0,0,0,0.1)',
 };
 
+type PaymentOptionDef = {
+  value: PaymentMethod;
+  title: string;
+  subtitle: string;
+  emoji: string;
+};
+
+const PAYMENT_OPTIONS: PaymentOptionDef[] = [
+  { value: 'tabby',  title: 'Tabby',  subtitle: 'Pay in 4 — 0% interest, no late fees · UAE',  emoji: '🟣' },
+  { value: 'tamara', title: 'Tamara', subtitle: 'Buy now, pay in 3 — Sharia compliant · UAE', emoji: '🟢' },
+  { value: 'card',   title: 'Credit / Debit Card', subtitle: 'Visa · Mastercard · Amex',      emoji: '💳' },
+  { value: 'cod',    title: 'Cash on Delivery',    subtitle: 'Pay when you receive · UAE',    emoji: '💵' },
+];
+
 type Form = { name: string; email: string; phone: string };
+type FormErrors = Partial<Form> & { payment?: string };
 const EMPTY: Form = { name: '', email: '', phone: '' };
 
 export default function Checkout({ winId }: { winId: string }) {
-  const items = useCartStore((s) => s.items);
-  const clearCart = useCartStore((s) => s.clear);
-  const products = useDataStore((s) => s.products);
+  const items      = useCartStore((s) => s.items);
+  const clearCart  = useCartStore((s) => s.clear);
+  const products   = useDataStore((s) => s.products);
   const placeOrder = useDataStore((s) => s.placeOrder);
-  const closeWin = useXpStore((s) => s.close);
-  const openApp = useXpStore((s) => s.open);
+  const closeWin   = useXpStore((s) => s.close);
+  const openApp    = useXpStore((s) => s.open);
+  const ie         = useIE();
 
-  const [form, setForm] = useState<Form>(EMPTY);
-  const [errors, setErrors] = useState<Partial<Form>>({});
-  const [placedOrderId, setPlacedOrderId] = useState<string | null>(null);
+  const keepShopping = () => {
+    if (ie) ie.navigate('cybertronics://shop');
+    else openApp('ie', { title: 'Internet Explorer', payload: { url: 'cybertronics://shop' } });
+  };
+
+  const [form, setForm]                       = useState<Form>(EMPTY);
+  const [paymentMethod, setPaymentMethod]     = useState<PaymentMethod | null>(null);
+  const [errors, setErrors]                   = useState<FormErrors>({});
+  const [placedOrderId, setPlacedOrderId]     = useState<string | null>(null);
+  const [placedMethod, setPlacedMethod]       = useState<PaymentMethod | null>(null);
 
   const orderLines: OrderItem[] = items
     .map((line): OrderItem | null => {
@@ -68,14 +92,15 @@ export default function Checkout({ winId }: { winId: string }) {
     return sum + (p.price - p.discountPrice) * line.quantity;
   }, 0);
   const shipping = subtotal === 0 ? 0 : subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FLAT;
-  const total = subtotal + shipping;
+  const total    = subtotal + shipping;
 
   const validate = (): boolean => {
-    const e: Partial<Form> = {};
-    if (!form.name.trim()) e.name = 'Required';
+    const e: FormErrors = {};
+    if (!form.name.trim())  e.name = 'Required';
     if (!form.email.trim()) e.email = 'Required';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Invalid email';
     if (!form.phone.trim()) e.phone = 'Required';
+    if (!paymentMethod)     e.payment = 'Pick a payment method';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -84,7 +109,7 @@ export default function Checkout({ winId }: { winId: string }) {
     if (!validate()) return;
     const order: Order = {
       id: uid(),
-      customerName: form.name.trim(),
+      customerName:  form.name.trim(),
       customerEmail: form.email.trim(),
       customerPhone: form.phone.trim(),
       items: orderLines,
@@ -92,15 +117,18 @@ export default function Checkout({ winId }: { winId: string }) {
       discountTotal,
       total,
       status: 'pending',
+      paymentMethod: paymentMethod ?? undefined,
       createdAt: nowIso(),
     };
     placeOrder(order);
     setPlacedOrderId(order.id);
+    setPlacedMethod(paymentMethod);
     clearCart();
   };
 
   // Confirmation view
   if (placedOrderId) {
+    const methodLabel = PAYMENT_OPTIONS.find((o) => o.value === placedMethod)?.title ?? '—';
     return (
       <div className="flex flex-col h-full" style={{ background: '#ece9d8' }}>
         <div
@@ -120,15 +148,14 @@ export default function Checkout({ winId }: { winId: string }) {
           <div className="text-[11px] text-gray-700">
             Order ID: <span className="font-mono text-gray-900">{placedOrderId.slice(0, 8)}</span>
           </div>
+          <div className="text-[11px] text-gray-700">
+            Payment method: <span className="font-semibold">{methodLabel}</span>
+          </div>
           <div className="text-[11px] text-gray-600 max-w-sm">
             A confirmation email will be sent to {form.email}. You can track this order in the admin panel.
           </div>
           <div className="flex gap-2 pt-2">
-            <button
-              onClick={() => openApp('lifestyle', { title: 'Lifestyle' })}
-              className="px-4 py-1 text-[11px] text-gray-900 rounded-sm"
-              style={BTN_STYLE}
-            >
+            <button onClick={keepShopping} className="px-4 py-1 text-[11px] text-gray-900 rounded-sm" style={BTN_STYLE}>
               Keep shopping
             </button>
             <button
@@ -144,7 +171,7 @@ export default function Checkout({ winId }: { winId: string }) {
     );
   }
 
-  // Empty cart fallback (shouldn't normally happen, but guard)
+  // Empty cart fallback
   if (orderLines.length === 0) {
     return (
       <div className="flex flex-col h-full" style={{ background: '#ece9d8' }}>
@@ -179,7 +206,7 @@ export default function Checkout({ winId }: { winId: string }) {
       </div>
 
       <div className="flex-1 overflow-auto p-3 grid grid-cols-1 sm:grid-cols-[1fr_220px] gap-3">
-        {/* Customer form */}
+        {/* Left column: customer info + payment */}
         <div className="space-y-3">
           <div
             className="p-3 space-y-2"
@@ -188,7 +215,6 @@ export default function Checkout({ winId }: { winId: string }) {
             <h3 className="text-[11px] font-bold text-[#0a246a] uppercase tracking-wide">
               Customer Information
             </h3>
-
             <label className="block">
               <span className="text-[11px] text-gray-700 block mb-0.5">
                 Full Name {errors.name && <span className="text-red-600">— {errors.name}</span>}
@@ -202,7 +228,6 @@ export default function Checkout({ winId }: { winId: string }) {
                 placeholder="Jane Doe"
               />
             </label>
-
             <label className="block">
               <span className="text-[11px] text-gray-700 block mb-0.5">
                 Email {errors.email && <span className="text-red-600">— {errors.email}</span>}
@@ -216,7 +241,6 @@ export default function Checkout({ winId }: { winId: string }) {
                 placeholder="jane@example.com"
               />
             </label>
-
             <label className="block">
               <span className="text-[11px] text-gray-700 block mb-0.5">
                 Phone {errors.phone && <span className="text-red-600">— {errors.phone}</span>}
@@ -232,12 +256,53 @@ export default function Checkout({ winId }: { winId: string }) {
             </label>
           </div>
 
-          <p className="text-[10px] text-gray-500">
-            This is a demo storefront. No payment will be charged.
-          </p>
+          <div
+            className="p-3 space-y-2"
+            style={{ background: '#fff', border: '1px solid #aac', borderRadius: 2 }}
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-[11px] font-bold text-[#0a246a] uppercase tracking-wide">
+                Payment Method
+              </h3>
+              {errors.payment && <span className="text-[10px] text-red-600">— {errors.payment}</span>}
+            </div>
+            <div className="space-y-1.5">
+              {PAYMENT_OPTIONS.map((opt) => {
+                const active = paymentMethod === opt.value;
+                return (
+                  <label
+                    key={opt.value}
+                    className="flex items-start gap-2 p-2 cursor-pointer hover:bg-blue-50 select-none"
+                    style={{
+                      background: active ? '#dce8f8' : '#fff',
+                      border: active ? '2px solid #2060c0' : '1px solid #aac',
+                      borderRadius: 2,
+                    }}
+                  >
+                    <input
+                      type="radio"
+                      name="payment"
+                      checked={active}
+                      onChange={() => setPaymentMethod(opt.value)}
+                      className="mt-0.5 accent-cyber"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[12px] font-bold text-gray-900">
+                        {opt.emoji} {opt.title}
+                      </div>
+                      <div className="text-[10px] text-gray-600">{opt.subtitle}</div>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+            <p className="text-[10px] text-gray-500 italic">
+              Demo storefront — no payment will be charged. Real Tabby / Tamara / Stripe wiring deferred.
+            </p>
+          </div>
         </div>
 
-        {/* Order summary */}
+        {/* Right column: order summary */}
         <div
           className="p-3 self-start space-y-2 text-[11px]"
           style={{ background: '#dce8f8', border: '1px solid #6896d2', borderRadius: 2 }}
@@ -296,18 +361,10 @@ export default function Checkout({ winId }: { winId: string }) {
         className="shrink-0 p-3 flex items-center justify-end gap-2"
         style={{ background: '#ece9d8', borderTop: '1px solid #aaa' }}
       >
-        <button
-          onClick={() => closeWin(winId)}
-          className="px-3 py-1 text-[11px] text-gray-900 rounded-sm"
-          style={BTN_STYLE}
-        >
+        <button onClick={() => closeWin(winId)} className="px-3 py-1 text-[11px] text-gray-900 rounded-sm" style={BTN_STYLE}>
           Cancel
         </button>
-        <button
-          onClick={submit}
-          className="px-4 py-1 text-[11px] rounded-sm font-bold"
-          style={BTN_PRIMARY}
-        >
+        <button onClick={submit} className="px-4 py-1 text-[11px] rounded-sm font-bold" style={BTN_PRIMARY}>
           Place Order — {formatPrice(total)}
         </button>
       </div>

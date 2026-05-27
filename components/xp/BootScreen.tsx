@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useXpStore } from '@/lib/store/xpStore';
+import { apps } from './appRegistry';
+import type { AppId } from '@/types/xp';
 
 const BOOT_MS = 2400;
 
@@ -9,6 +12,33 @@ export default function BootScreen() {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
+    // Auto-open IE + About on boot (per Stage 2 brief §3.A).
+    // xpStore isn't persisted, so each fresh layout mount = a fresh boot.
+    // Guard against duplicates if the layout remounts during the same session.
+    const xp = useXpStore.getState();
+    const alreadyOpen = (id: AppId) => xp.windows.some((w) => w.appId === id);
+
+    if (!alreadyOpen('about')) {
+      const def = apps.about;
+      xp.open('about', {
+        title: def.title,
+        w: def.defaultSize.w,
+        h: def.defaultSize.h,
+        x: 620,
+        y: 40,
+      });
+    }
+    if (!alreadyOpen('ie')) {
+      const def = apps.ie;
+      xp.open('ie', {
+        title: def.title,
+        w: def.defaultSize.w,
+        h: def.defaultSize.h,
+        x: 40,
+        y: 30,
+      });
+    }
+
     const t = setTimeout(() => setVisible(false), BOOT_MS);
     return () => clearTimeout(t);
   }, []);
