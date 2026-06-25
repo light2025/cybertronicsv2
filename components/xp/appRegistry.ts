@@ -1,31 +1,9 @@
-// Maps AppId -> { title, Icon, Component, defaultSize, showInStartMenu }.
-// To add an app: implement component, register here, done.
+// Maps AppId -> { title, icon, Component, defaultSize, showInStartMenu }.
+// Icons are now image paths to authentic XP PNGs.
 
 import type { ComponentType } from 'react';
-import {
-  Monitor,
-  ShoppingBag,
-  ShoppingCart,
-  Image as ImageIcon,
-  NotebookPen,
-  Palette,
-  Music,
-  Video,
-  Settings as SettingsIcon,
-  Info,
-  Mail,
-  Package,
-  TerminalSquare,
-  HelpCircle,
-  Receipt,
-  Globe,
-  Calculator as CalculatorIcon,
-  Gamepad2,
-  Phone,
-  type LucideIcon,
-} from 'lucide-react';
-
 import type { AppId, WindowPayload } from '@/types/xp';
+
 import MyComputer from './apps/MyComputer';
 import InternetExplorer from './apps/InternetExplorer';
 import LifestyleFolder from './apps/LifestyleFolder';
@@ -48,7 +26,7 @@ import ComingSoon from './apps/ComingSoon';
 
 export type AppDef = {
   title: string;
-  Icon: LucideIcon;
+  icon: string;
   Component: ComponentType<{ winId: string; payload?: WindowPayload }>;
   defaultSize: { w: number; h: number };
   showInStartMenu: boolean;
@@ -57,140 +35,140 @@ export type AppDef = {
 export const apps: Record<AppId, AppDef> = {
   'my-computer': {
     title: 'My Computer',
-    Icon: Monitor,
+    icon: '/xp/icons/My Computer.png',
     Component: MyComputer,
     defaultSize: { w: 580, h: 400 },
     showInStartMenu: true,
   },
   ie: {
     title: 'Internet Explorer',
-    Icon: Globe,
+    icon: '/xp/icons/Internet Explorer 6.png',
     Component: InternetExplorer,
     defaultSize: { w: 760, h: 560 },
     showInStartMenu: true,
   },
   lifestyle: {
     title: 'Lifestyle',
-    Icon: ShoppingBag,
+    icon: '/xp/icons/Folder Opened.png',
     Component: LifestyleFolder,
     defaultSize: { w: 640, h: 440 },
     showInStartMenu: false,
   },
   gallery: {
     title: 'Gallery',
-    Icon: ImageIcon,
+    icon: '/xp/icons/Gallery.png',
     Component: Gallery,
     defaultSize: { w: 660, h: 500 },
     showInStartMenu: true,
   },
   notepad: {
     title: 'Notepad',
-    Icon: NotebookPen,
+    icon: '/xp/icons/Notepad.png',
     Component: Notepad,
     defaultSize: { w: 480, h: 360 },
     showInStartMenu: true,
   },
   paint: {
     title: 'Paint',
-    Icon: Palette,
+    icon: '/xp/icons/Paint.png',
     Component: Paint,
     defaultSize: { w: 680, h: 500 },
     showInStartMenu: true,
   },
   music: {
     title: 'Music Player',
-    Icon: Music,
+    icon: '/xp/icons/Windows Media Player.png',
     Component: MusicPlayer,
     defaultSize: { w: 380, h: 440 },
     showInStartMenu: true,
   },
   video: {
     title: 'Video Player',
-    Icon: Video,
+    icon: '/xp/icons/VLC.png',
     Component: VideoPlayer,
     defaultSize: { w: 600, h: 420 },
     showInStartMenu: true,
   },
   terminal: {
     title: 'Terminal',
-    Icon: TerminalSquare,
+    icon: '/xp/icons/Briefcase.png',
     Component: Terminal,
     defaultSize: { w: 540, h: 360 },
     showInStartMenu: true,
   },
   settings: {
     title: 'Settings',
-    Icon: SettingsIcon,
+    icon: '/xp/icons/My Computer.png',
     Component: Settings,
     defaultSize: { w: 520, h: 380 },
     showInStartMenu: true,
   },
   help: {
     title: 'Help',
-    Icon: HelpCircle,
+    icon: '/xp/icons/AboutUS.png',
     Component: Help,
     defaultSize: { w: 540, h: 400 },
     showInStartMenu: true,
   },
   about: {
     title: 'About Us',
-    Icon: Info,
+    icon: '/xp/icons/AboutUS.png',
     Component: About,
     defaultSize: { w: 460, h: 380 },
     showInStartMenu: true,
   },
   contact: {
     title: 'Contact Us',
-    Icon: Mail,
+    icon: '/xp/icons/Briefcase.png',
     Component: Contact,
     defaultSize: { w: 440, h: 320 },
     showInStartMenu: true,
   },
   'product-detail': {
     title: 'Product',
-    Icon: Package,
+    icon: '/xp/icons/Folder Opened.png',
     Component: ProductDetail,
     defaultSize: { w: 520, h: 480 },
     showInStartMenu: false,
   },
   cart: {
     title: 'Shopping Cart',
-    Icon: ShoppingCart,
+    icon: '/xp/icons/Briefcase.png',
     Component: Cart,
     defaultSize: { w: 520, h: 460 },
     showInStartMenu: true,
   },
   checkout: {
     title: 'Checkout',
-    Icon: Receipt,
+    icon: '/xp/icons/Briefcase.png',
     Component: Checkout,
     defaultSize: { w: 560, h: 480 },
     showInStartMenu: false,
   },
   calculator: {
     title: 'Calculator',
-    Icon: CalculatorIcon,
+    icon: '/xp/icons/Calculator.png',
     Component: Calculator,
     defaultSize: { w: 300, h: 460 },
     showInStartMenu: true,
   },
   snake: {
     title: 'Snake',
-    Icon: Gamepad2,
+    icon: '/xp/icons/Alert.png',
     Component: Snake,
     defaultSize: { w: 380, h: 540 },
     showInStartMenu: true,
   },
   call: {
     title: 'Call',
-    Icon: Phone,
+    icon: '/xp/icons/Briefcase.png',
     Component: ComingSoon,
     defaultSize: { w: 360, h: 360 },
     showInStartMenu: false,
   },
   mail: {
     title: 'Mail',
-    Icon: Mail,
+    icon: '/xp/icons/Briefcase.png',
     Component: ComingSoon,
     defaultSize: { w: 360, h: 400 },
     showInStartMenu: false,

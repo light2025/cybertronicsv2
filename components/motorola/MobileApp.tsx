@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import type { AppId, WindowPayload } from '@/types/xp';
@@ -18,11 +19,9 @@ export default function MobileApp({ appId, payload }: Props) {
     );
   }
 
-  const Icon = def.Icon;
-
   return (
     <div className="flex-1 flex flex-col items-center justify-center px-6 text-center gap-3">
-      <Icon className="w-14 h-14 text-[#1a4a8a]" strokeWidth={1.3} />
+      <img src={def.icon} alt="" className="w-14 h-14 object-contain" />
       <div className="text-[14px] font-bold text-[#0a3060]">{def.title}</div>
       <div className="text-[11px] text-[#4a5878] max-w-[16rem] leading-relaxed">
         This app is being ported to Mobile Mode.

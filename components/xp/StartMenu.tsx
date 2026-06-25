@@ -93,14 +93,14 @@ export default function StartMenu() {
             <ul className="py-1 flex-1 overflow-y-auto">
               {list.map((id) => {
                 const a = apps[id];
-                const Icon = a.Icon;
                 return (
                   <li key={id}>
                     <button
                       onClick={() => handleOpen(id)}
                       className="w-full px-2 py-1.5 flex items-center gap-2 text-left group hover:bg-xp-select"
                     >
-                      <Icon className="w-6 h-6 text-[#4a72c8] group-hover:text-white shrink-0" />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={a.icon} alt="" className="w-6 h-6 object-contain shrink-0" />
                       <span className="text-[12px] font-bold text-[#222] group-hover:text-white leading-tight">
                         {a.title}
                       </span>

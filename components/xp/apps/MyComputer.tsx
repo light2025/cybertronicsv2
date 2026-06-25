@@ -1,36 +1,26 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { useState } from 'react';
-import {
-  ShoppingBag,
-  ShoppingCart,
-  Image as ImageIcon,
-  Video,
-  Music,
-  Info,
-  Mail,
-  Layers,
-  Folder,
-} from 'lucide-react';
 import { useXpStore } from '@/lib/store/xpStore';
 import type { AppId } from '@/types/xp';
 
 type FolderEntry = {
   label: string;
   appId: AppId;
-  Icon: typeof Folder;
+  icon: string;
   payload?: Record<string, unknown>;
 };
 
 const folders: FolderEntry[] = [
-  { label: 'Shop', appId: 'ie', Icon: ShoppingBag, payload: { url: 'cybertronics://shop' } },
-  { label: 'Cart', appId: 'cart', Icon: ShoppingCart },
-  { label: 'Gallery', appId: 'gallery', Icon: ImageIcon },
-  { label: 'About Us', appId: 'about', Icon: Info },
-  { label: 'Contact Us', appId: 'contact', Icon: Mail },
-  { label: 'Videos', appId: 'video', Icon: Video },
-  { label: 'Music', appId: 'music', Icon: Music },
-  { label: 'Lookbook', appId: 'gallery', Icon: Layers, payload: { kind: 'lookbook' } },
+  { label: 'Shop', appId: 'ie', icon: '/xp/icons/Internet Explorer 6.png', payload: { url: 'cybertronics://shop' } },
+  { label: 'Cart', appId: 'cart', icon: '/xp/icons/Briefcase.png' },
+  { label: 'Gallery', appId: 'gallery', icon: '/xp/icons/Gallery.png' },
+  { label: 'About Us', appId: 'about', icon: '/xp/icons/AboutUS.png' },
+  { label: 'Contact Us', appId: 'contact', icon: '/xp/icons/Briefcase.png' },
+  { label: 'Videos', appId: 'video', icon: '/xp/icons/VLC.png' },
+  { label: 'Music', appId: 'music', icon: '/xp/icons/Windows Media Player.png' },
+  { label: 'Lookbook', appId: 'gallery', icon: '/xp/icons/Gallery.png', payload: { kind: 'lookbook' } },
 ];
 
 const PANEL_HEADER =
@@ -67,7 +57,7 @@ function SidePanel({
               onClick={() => onOpen(f)}
               className="w-full px-2 py-[3px] flex items-center gap-1.5 text-left group hover:bg-xp-select"
             >
-              <f.Icon className="w-4 h-4 text-[#3a6ea5] group-hover:text-white shrink-0" strokeWidth={1.5} />
+              <img src={f.icon} alt="" className="w-4 h-4 object-contain shrink-0" />
               <span className="text-[11px] text-[#1a3080] group-hover:text-white leading-snug">
                 {f.label}
               </span>
@@ -98,26 +88,25 @@ export default function MyComputer() {
         {/* Details panel */}
         <div
           className="mt-1 p-2 text-[10px] text-[#1a3060]"
-          style={{ background: '#d0dff5', border: '1px solid #6896cc', borderRadius: 2 }}
+          style={{ background: '#e0eaf8', border: '1px solid #98b8d8', borderRadius: 2 }}
         >
-          <div className="font-bold mb-0.5">Cybertronics</div>
-          <div className="text-[#555]">XP Edition</div>
-          <div className="text-[#555] mt-0.5">{folders.length} items</div>
+          <div className="font-bold mb-1">Details</div>
+          <div>Cybertronics OS</div>
+          <div className="text-[9px] text-[#4a6090]">v1.0 · XP Edition</div>
         </div>
       </div>
 
-      {/* Main folder view */}
-      <div className="flex-1 overflow-auto bg-white p-3">
-        <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+      {/* Main content area: large icons */}
+      <div className="flex-1 p-3 overflow-auto">
+        <div className="flex flex-wrap gap-6">
           {folders.map((f) => (
             <button
               key={f.label}
               onDoubleClick={() => handleOpen(f)}
-              className="flex flex-col items-center gap-1 p-2 focus:outline-none hover:bg-[#e5f0ff] active:bg-[#cde0ff]"
-              style={{ borderRadius: 2 }}
+              className="w-20 flex flex-col items-center text-center gap-1 p-1 rounded hover:bg-[#316ac5]/20 focus:bg-[#316ac5]/20 outline-none"
             >
-              <f.Icon className="w-10 h-10 text-[#4a72c8]" strokeWidth={1.2} />
-              <span className="text-[11px] text-center text-gray-800 leading-tight">{f.label}</span>
+              <img src={f.icon} alt="" className="w-10 h-10 object-contain" />
+              <span className="text-[11px] text-[#1a3060] leading-tight">{f.label}</span>
             </button>
           ))}
         </div>

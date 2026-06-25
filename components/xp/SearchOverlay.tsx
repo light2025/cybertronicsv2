@@ -131,7 +131,6 @@ export default function SearchOverlay() {
               )}
               {hits.map((h, i) => {
                 const a = apps[h.id];
-                const Icon = a.Icon;
                 const active = i === idx;
                 return (
                   <li key={h.id}>
@@ -147,7 +146,8 @@ export default function SearchOverlay() {
                         color: active ? '#fff' : '#1a1a1a',
                       }}
                     >
-                      <Icon className="w-5 h-5 shrink-0" style={{ color: active ? '#fff' : '#3a6ea5' }} />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={a.icon} alt="" className="w-5 h-5 shrink-0 object-contain" />
                       <div className="flex-1 min-w-0">
                         <div className="text-[12px] font-bold truncate">{a.title}</div>
                         <div

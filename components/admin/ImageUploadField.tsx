@@ -15,9 +15,11 @@ type Props = {
   onChange: (urls: string[]) => void;
   label?: string;
   max?: number;
+  primaryIndex?: number;
+  onPrimaryChange?: (index: number) => void;
 };
 
-const DEFAULT_MAX = 15;
+const DEFAULT_MAX = 10;
 
 function move<T>(arr: T[], from: number, to: number): T[] {
   if (to < 0 || to >= arr.length) return arr;
@@ -32,6 +34,8 @@ export default function ImageUploadField({
   onChange,
   label = 'Images',
   max = DEFAULT_MAX,
+  primaryIndex = 0,
+  onPrimaryChange,
 }: Props) {
   const [draft, setDraft] = useState('');
   const [error, setError] = useState('');
@@ -39,6 +43,7 @@ export default function ImageUploadField({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const supabaseActive = isSupabaseConfigured();
+  const effectivePrimary = Math.min(primaryIndex, Math.max(0, value.length - 1));
 
   const add = () => {
     const url = draft.trim();
@@ -79,10 +84,23 @@ export default function ImageUploadField({
     }
   };
 
-  const remove = (i: number) => onChange(value.filter((_, idx) => idx !== i));
+  const remove = (i: number) => {
+    onChange(value.filter((_, idx) => idx !== i));
+    if (onPrimaryChange && i === effectivePrimary && value.length > 1) {
+      onPrimaryChange(Math.max(0, effectivePrimary - 1));
+    } else if (onPrimaryChange && i < effectivePrimary) {
+      onPrimaryChange(effectivePrimary - 1);
+    }
+  };
   const moveUp = (i: number) => onChange(move(value, i, i - 1));
   const moveDown = (i: number) => onChange(move(value, i, i + 1));
-  const makePrimary = (i: number) => onChange(move(value, i, 0));
+  const makePrimary = (i: number) => {
+    if (onPrimaryChange) {
+      onPrimaryChange(i);
+    } else {
+      onChange(move(value, i, 0));
+    }
+  };
 
   const atCap = value.length >= max;
 
@@ -152,7 +170,7 @@ export default function ImageUploadField({
       {value.length > 0 && (
         <div className="flex flex-wrap gap-2 pt-1">
           {value.map((url, i) => {
-            const isPrimary = i === 0;
+            const isPrimary = i === effectivePrimary;
             return (
               <div
                 key={`${url}-${i}`}
@@ -176,7 +194,7 @@ export default function ImageUploadField({
                 {isPrimary && (
                   <div className="absolute top-1 left-1 inline-flex items-center gap-0.5 px-1.5 h-4 rounded text-[9px] font-bold bg-cyber text-white">
                     <Star className="w-2.5 h-2.5" strokeWidth={3} />
-                    PRIMARY
+                    HERO
                   </div>
                 )}
 
@@ -218,7 +236,8 @@ export default function ImageUploadField({
                     type="button"
                     onClick={() => makePrimary(i)}
                     className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white/90 text-cyber-dark hover:bg-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-                    aria-label="Make primary"
+                    title="Set as hero image"
+                    aria-label="Make hero image"
                   >
                     <Star className="w-3 h-3" />
                   </button>

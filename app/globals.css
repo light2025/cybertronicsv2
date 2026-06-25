@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'EXEPixelPerfect';
+  src: url('/fonts/EXEPixelPerfect.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -31,6 +39,13 @@
   /* Admin / brand accent */
   --color-cyber: #00d4ff;
   --color-cyber-dark: #00a8d4;
+
+  /* Mobile green LCD palette */
+  --color-lcd-bg: #7BA226;
+  --color-lcd-dark: #324C0D;
+
+  /* Pixel font for mobile */
+  --font-pixel: 'EXEPixelPerfect', monospace;
 }
 
 @media (prefers-color-scheme: dark) {

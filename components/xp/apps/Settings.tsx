@@ -9,6 +9,8 @@ type Tab = 'display' | 'sound' | 'about';
 export default function Settings() {
   const wallpaper = useSettingsStore((s) => s.wallpaper);
   const setWallpaper = useSettingsStore((s) => s.setWallpaper);
+  const soundEnabled = useSettingsStore((s) => s.soundEnabled);
+  const toggleSound = useSettingsStore((s) => s.toggleSound);
   const [tab, setTab] = useState<Tab>('display');
 
   return (
@@ -53,9 +55,11 @@ export default function Settings() {
                     className="flex flex-col items-center gap-1"
                   >
                     <div
-                      className="w-full aspect-[4/3] rounded-sm"
+                      className="w-full aspect-[4/3] rounded-sm bg-cover bg-center"
                       style={{
-                        background: w.bg,
+                        background: w.image ? `url(${w.image})` : w.bg,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
                         border: active ? '2px solid #ff8000' : '1px solid #6896cc',
                         boxShadow: active ? '0 0 4px rgba(255,128,0,0.6)' : 'inset 1px 1px 2px rgba(0,0,0,0.2)',
                       }}
@@ -71,8 +75,24 @@ export default function Settings() {
         {tab === 'sound' && (
           <div className="text-[11px] text-gray-700">
             <h2 className="text-[13px] font-bold text-[#0a246a] mb-2">Sounds</h2>
-            <p>System sound scheme: <span className="italic">Cybertronics (default)</span></p>
-            <p className="mt-2 text-gray-500">Sound playback is disabled in this build.</p>
+            <p className="mb-3">System sound scheme: <span className="italic">Cybertronics (default)</span></p>
+
+            <div className="flex items-center gap-3 p-3 rounded" style={{ background: '#f0f4f8', border: '1px solid #cdd8e8' }}>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={soundEnabled}
+                  onChange={toggleSound}
+                  className="w-4 h-4 accent-[#316ac5]"
+                />
+                <span className="font-medium">Enable system sounds</span>
+              </label>
+            </div>
+
+            <p className="mt-3 text-gray-500 text-[10px]">
+              Sounds include: Windows startup, error notification, navigation clicks.
+              You can also toggle sound from the system tray (speaker icon).
+            </p>
           </div>
         )}
 

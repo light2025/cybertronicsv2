@@ -26,6 +26,7 @@ type FormState = {
   price: string;
   discountPrice: string;
   images: string[];
+  primaryImageIndex: number;
   videos: string[];
   tags: string;
   seoTags: string[];
@@ -42,7 +43,7 @@ type FormState = {
 const EMPTY: FormState = {
   title: '', slug: '', description: '', category: '', subCategory: '',
   groupId: '', customGroups: [], price: '', discountPrice: '',
-  images: [], videos: [], tags: '', seoTags: [],
+  images: [], primaryImageIndex: 0, videos: [], tags: '', seoTags: [],
   stockStatus: 'in_stock', stockCount: '0',
   isFeatured: false, isNewArrival: false, isBestSelling: false,
   availableSizes: '', availableColors: '', barcode: '',
@@ -60,6 +61,7 @@ function toForm(p: Product): FormState {
     price: String(p.price),
     discountPrice: p.discountPrice != null ? String(p.discountPrice) : '',
     images: p.images,
+    primaryImageIndex: p.primaryImageIndex ?? 0,
     videos: p.videos ?? (p.videoUrl ? [p.videoUrl] : []),
     tags: p.tags.join(', '),
     seoTags: p.seoTags ?? [],
@@ -184,6 +186,7 @@ export default function ProductEditor({ productId }: Props) {
       price: priceVal,
       discountPrice: discountVal,
       images: form.images,
+      primaryImageIndex: form.primaryImageIndex,
       videos: form.videos,
       videoUrl: form.videos[0] ?? null,
       tags: tagsArr,
@@ -462,7 +465,9 @@ export default function ProductEditor({ productId }: Props) {
           value={form.images}
           onChange={(urls) => patch('images', urls)}
           label=""
-          max={15}
+          max={10}
+          primaryIndex={form.primaryImageIndex}
+          onPrimaryChange={(idx) => patch('primaryImageIndex', idx)}
         />
       </section>
 

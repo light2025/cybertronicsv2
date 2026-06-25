@@ -10,7 +10,7 @@ type PixelGridProps = {
   color?: string;
 };
 
-function PixelGrid({ pixels, size = 36, color = '#0a1e48' }: PixelGridProps) {
+function PixelGrid({ pixels, size = 36, color = '#324C0D' }: PixelGridProps) {
   const h = pixels.length;
   const w = pixels[0].length;
   return (

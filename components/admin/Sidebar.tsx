@@ -9,12 +9,27 @@ import {
   Tag,
   Receipt,
   Bookmark,
+  Image as ImageIcon,
+  Users,
+  Percent,
+  Truck,
+  Megaphone,
+  Settings,
+  Sliders,
   type LucideIcon,
 } from 'lucide-react';
 import { useDataStore, useHydrated } from '@/lib/store/dataStore';
+import { useSettingsStore } from '@/lib/store/settingsStore';
 import { cn } from '@/lib/utils';
+import type { AdminFeatureFlags } from '@/types';
 
-type NavItem = { href: string; label: string; Icon: LucideIcon; match?: (path: string) => boolean };
+type NavItem = {
+  href: string;
+  label: string;
+  Icon: LucideIcon;
+  match?: (path: string) => boolean;
+  featureFlag?: keyof AdminFeatureFlags;
+};
 
 const NAV: NavItem[] = [
   {
@@ -28,6 +43,13 @@ const NAV: NavItem[] = [
     label: 'Orders',
     Icon: Receipt,
     match: (p) => p.startsWith('/admin/orders'),
+  },
+  {
+    href: '/admin/customers',
+    label: 'Customers',
+    Icon: Users,
+    match: (p) => p.startsWith('/admin/customers'),
+    featureFlag: 'customers',
   },
   {
     href: '/admin/groups',
@@ -53,6 +75,46 @@ const NAV: NavItem[] = [
     Icon: Bookmark,
     match: (p) => p.startsWith('/admin/custom-groups'),
   },
+  {
+    href: '/admin/lookbook',
+    label: 'Lookbook',
+    Icon: ImageIcon,
+    match: (p) => p.startsWith('/admin/lookbook'),
+  },
+  {
+    href: '/admin/coupons',
+    label: 'Coupons',
+    Icon: Percent,
+    match: (p) => p.startsWith('/admin/coupons'),
+    featureFlag: 'coupons',
+  },
+  {
+    href: '/admin/shipping',
+    label: 'Shipping',
+    Icon: Truck,
+    match: (p) => p.startsWith('/admin/shipping'),
+    featureFlag: 'shipping',
+  },
+  {
+    href: '/admin/banners',
+    label: 'Banners',
+    Icon: Megaphone,
+    match: (p) => p.startsWith('/admin/banners'),
+    featureFlag: 'banners',
+  },
+  {
+    href: '/admin/store-settings',
+    label: 'Store Settings',
+    Icon: Settings,
+    match: (p) => p.startsWith('/admin/store-settings'),
+    featureFlag: 'storeSettings',
+  },
+  {
+    href: '/admin/feature-flags',
+    label: 'Feature Flags',
+    Icon: Sliders,
+    match: (p) => p.startsWith('/admin/feature-flags'),
+  },
 ];
 
 export default function Sidebar() {
@@ -61,6 +123,13 @@ export default function Sidebar() {
   const pendingCount = useDataStore((s) =>
     s.orders.filter((o) => o.status === 'pending').length
   );
+  const adminFeatures = useSettingsStore((s) => s.adminFeatures) ?? {};
+
+  // Filter nav items based on feature flags
+  const visibleNav = NAV.filter((item) => {
+    if (!item.featureFlag) return true;
+    return adminFeatures[item.featureFlag] ?? false;
+  });
 
   return (
     <aside className="w-60 shrink-0 bg-white border-r border-gray-200 flex flex-col">
@@ -81,7 +150,7 @@ export default function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-3 px-2.5 space-y-0.5">
-        {NAV.map(({ href, label, Icon, match }) => {
+        {visibleNav.map(({ href, label, Icon, match }) => {
           const active = match ? match(pathname) : pathname === href;
           const showBadge = hydrated && label === 'Orders' && pendingCount > 0;
           return (
@@ -119,7 +188,7 @@ export default function Sidebar() {
       {/* Footer */}
       <div className="px-4 py-3 border-t border-gray-200 text-[10px] text-gray-400 leading-relaxed">
         <div className="font-semibold text-gray-500 text-[10px] uppercase tracking-wider mb-1">
-          v1.0.0 · S1
+          v1.0.0 · S3
         </div>
         Local data — TODO: connect Supabase.
       </div>

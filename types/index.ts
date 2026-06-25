@@ -99,3 +99,81 @@ export type Customer = {
   phone: string;
   address?: string;
 };
+
+// Shipping address for orders
+export type ShippingAddress = {
+  line1: string;
+  line2?: string;
+  city: string;
+  emirate: string;
+  country: string;
+  postalCode?: string;
+};
+
+// Coupon / Discount codes
+export type CouponType = 'percentage' | 'fixed';
+
+export type Coupon = {
+  id: string;
+  code: string;
+  type: CouponType;
+  value: number;
+  minOrderAmount?: number;
+  maxUses?: number;
+  usedCount: number;
+  validFrom: string;
+  validUntil: string;
+  isActive: boolean;
+  createdAt: string;
+};
+
+// Shipping zones and rates
+export type ShippingZone = {
+  id: string;
+  name: string;
+  regions: string[];
+  rate: number;
+  freeAbove?: number;
+  estimatedDays: string;
+  isActive: boolean;
+};
+
+// Promotional banners
+export type BannerPosition = 'hero' | 'announcement' | 'sidebar';
+
+export type Banner = {
+  id: string;
+  title: string;
+  subtitle?: string;
+  image: string;
+  link?: string;
+  position: BannerPosition;
+  isActive: boolean;
+  displayOrder: number;
+  validFrom?: string;
+  validUntil?: string;
+  createdAt: string;
+};
+
+// Store settings
+export type StoreSettings = {
+  storeName: string;
+  logo: string;
+  contactEmail: string;
+  contactPhone: string;
+  address: string;
+  socialLinks: { platform: string; url: string }[];
+  currency: Currency;
+  taxRate: number;
+  freeShippingThreshold: number;
+};
+
+// Admin feature visibility flags
+export type AdminFeatureFlags = {
+  customers: boolean;
+  coupons: boolean;
+  shipping: boolean;
+  banners: boolean;
+  storeSettings: boolean;
+  analytics: boolean;
+};

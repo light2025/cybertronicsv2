@@ -2,10 +2,39 @@
 
 import { useSettingsStore, type WallpaperId } from '@/lib/store/settingsStore';
 
-// CSS-only XP-style wallpapers. No image deps.
-export const WALLPAPERS: Record<WallpaperId, { label: string; bg: string }> = {
+type WallpaperDef = {
+  label: string;
+  bg?: string;
+  image?: string;
+};
+
+export const WALLPAPERS: Record<WallpaperId, WallpaperDef> = {
+  'win-xp': {
+    label: 'Windows XP',
+    image: '/xp/wallpapers/win-xp.jpg',
+  },
+  'xp-classic-default': {
+    label: 'XP Classic',
+    image: '/xp/wallpapers/xp-classic-default.jpg',
+  },
+  'win-7': {
+    label: 'Windows 7',
+    image: '/xp/wallpapers/win-7.jpg',
+  },
+  'win-10': {
+    label: 'Windows 10',
+    image: '/xp/wallpapers/win-10.jpg',
+  },
+  'win-11-light': {
+    label: 'Windows 11 Light',
+    image: '/xp/wallpapers/win-11-light.jpg',
+  },
+  'win-11-dark': {
+    label: 'Windows 11 Dark',
+    image: '/xp/wallpapers/win-11-dark.jpg',
+  },
   bliss: {
-    label: 'Bliss',
+    label: 'Bliss (CSS)',
     bg: `
       radial-gradient(ellipse 120% 60% at 50% 100%, #4a8a3a 0%, #5a9a40 18%, transparent 60%),
       radial-gradient(ellipse 80% 30% at 70% 80%, #b8c850 0%, transparent 60%),
@@ -36,7 +65,17 @@ export const WALLPAPERS: Record<WallpaperId, { label: string; bg: string }> = {
 
 export default function WallpaperLayer() {
   const wallpaper = useSettingsStore((s) => s.wallpaper);
-  const def = WALLPAPERS[wallpaper] ?? WALLPAPERS.bliss;
+  const def = WALLPAPERS[wallpaper] ?? WALLPAPERS['win-xp'];
+
+  if (def.image) {
+    return (
+      <div
+        className="absolute inset-0 pointer-events-none bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${def.image})` }}
+      />
+    );
+  }
+
   return (
     <div
       className="absolute inset-0 pointer-events-none"

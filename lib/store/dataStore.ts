@@ -14,13 +14,19 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { useEffect, useState } from 'react';
 import type {
+  Banner,
   Category,
+  Coupon,
   CustomGroup,
   Order,
   Product,
   ProductGroup,
+  ShippingZone,
+  StoreSettings,
 } from '@/types';
 import { seedCategories, seedCustomGroups, seedGroups, seedProducts } from '@/lib/data/seedProducts';
+import type { LookbookImage } from '@/lib/data/lookbookImages';
+import { defaultLookbookImages } from '@/lib/data/lookbookImages';
 import { nowIso } from '@/lib/utils';
 import {
   fetchCatalog,
@@ -34,12 +40,34 @@ import * as groupsApi        from '@/lib/api/groups';
 import * as customGroupsApi  from '@/lib/api/custom_groups';
 import * as ordersApi        from '@/lib/api/orders';
 
+const defaultStoreSettings: StoreSettings = {
+  storeName: 'Cybertronics',
+  logo: '/xp/icons/ie.png',
+  contactEmail: 'hello@cybertronics.ae',
+  contactPhone: '+971 50 000 0000',
+  address: 'Dubai, UAE',
+  socialLinks: [],
+  currency: 'AED',
+  taxRate: 5,
+  freeShippingThreshold: 200,
+};
+
+const defaultShippingZones: ShippingZone[] = [
+  { id: 'uae-dubai', name: 'Dubai', regions: ['Dubai'], rate: 0, freeAbove: 0, estimatedDays: '1-2', isActive: true },
+  { id: 'uae-other', name: 'Other Emirates', regions: ['Abu Dhabi', 'Sharjah', 'Ajman', 'RAK', 'Fujairah', 'UAQ'], rate: 15, freeAbove: 200, estimatedDays: '2-3', isActive: true },
+];
+
 type DataState = {
   products: Product[];
   groups: ProductGroup[];
   categories: Category[];
   customGroups: CustomGroup[];
   orders: Order[];
+  lookbookImages: LookbookImage[];
+  coupons: Coupon[];
+  shippingZones: ShippingZone[];
+  banners: Banner[];
+  storeSettings: StoreSettings;
 
   addProduct: (p: Product) => void;
   updateProduct: (id: string, patch: Partial<Product>) => void;
@@ -60,6 +88,25 @@ type DataState = {
   placeOrder: (o: Order) => void;
   updateOrder: (id: string, patch: Partial<Order>) => void;
 
+  addLookbookImage: (img: LookbookImage) => void;
+  updateLookbookImage: (id: string, patch: Partial<LookbookImage>) => void;
+  deleteLookbookImage: (id: string) => void;
+
+  addCoupon: (c: Coupon) => void;
+  updateCoupon: (id: string, patch: Partial<Coupon>) => void;
+  deleteCoupon: (id: string) => void;
+  incrementCouponUsage: (id: string) => void;
+
+  addShippingZone: (z: ShippingZone) => void;
+  updateShippingZone: (id: string, patch: Partial<ShippingZone>) => void;
+  deleteShippingZone: (id: string) => void;
+
+  addBanner: (b: Banner) => void;
+  updateBanner: (id: string, patch: Partial<Banner>) => void;
+  deleteBanner: (id: string) => void;
+
+  updateStoreSettings: (patch: Partial<StoreSettings>) => void;
+
   resetToSeed: () => void;
   refreshFromSupabase: () => Promise<void>;
 };
@@ -72,6 +119,11 @@ export const useDataStore = create<DataState>()(
       categories: seedCategories,
       customGroups: seedCustomGroups,
       orders: [],
+      lookbookImages: defaultLookbookImages,
+      coupons: [],
+      shippingZones: defaultShippingZones,
+      banners: [],
+      storeSettings: defaultStoreSettings,
 
       addProduct: (p) => {
         set((s) => ({ products: [...s.products, p] }));
@@ -166,6 +218,67 @@ export const useDataStore = create<DataState>()(
         }
       },
 
+      addLookbookImage: (img) => {
+        set((s) => ({ lookbookImages: [...s.lookbookImages, img] }));
+      },
+      updateLookbookImage: (id, patch) => {
+        set((s) => ({
+          lookbookImages: s.lookbookImages.map((img) =>
+            img.id === id ? { ...img, ...patch } : img
+          ),
+        }));
+      },
+      deleteLookbookImage: (id) => {
+        set((s) => ({ lookbookImages: s.lookbookImages.filter((img) => img.id !== id) }));
+      },
+
+      addCoupon: (c) => {
+        set((s) => ({ coupons: [...s.coupons, c] }));
+      },
+      updateCoupon: (id, patch) => {
+        set((s) => ({
+          coupons: s.coupons.map((c) => (c.id === id ? { ...c, ...patch } : c)),
+        }));
+      },
+      deleteCoupon: (id) => {
+        set((s) => ({ coupons: s.coupons.filter((c) => c.id !== id) }));
+      },
+      incrementCouponUsage: (id) => {
+        set((s) => ({
+          coupons: s.coupons.map((c) =>
+            c.id === id ? { ...c, usedCount: c.usedCount + 1 } : c
+          ),
+        }));
+      },
+
+      addShippingZone: (z) => {
+        set((s) => ({ shippingZones: [...s.shippingZones, z] }));
+      },
+      updateShippingZone: (id, patch) => {
+        set((s) => ({
+          shippingZones: s.shippingZones.map((z) => (z.id === id ? { ...z, ...patch } : z)),
+        }));
+      },
+      deleteShippingZone: (id) => {
+        set((s) => ({ shippingZones: s.shippingZones.filter((z) => z.id !== id) }));
+      },
+
+      addBanner: (b) => {
+        set((s) => ({ banners: [...s.banners, b] }));
+      },
+      updateBanner: (id, patch) => {
+        set((s) => ({
+          banners: s.banners.map((b) => (b.id === id ? { ...b, ...patch } : b)),
+        }));
+      },
+      deleteBanner: (id) => {
+        set((s) => ({ banners: s.banners.filter((b) => b.id !== id) }));
+      },
+
+      updateStoreSettings: (patch) => {
+        set((s) => ({ storeSettings: { ...s.storeSettings, ...patch } }));
+      },
+
       resetToSeed: () =>
         set({
           products: seedProducts,
@@ -173,6 +286,11 @@ export const useDataStore = create<DataState>()(
           categories: seedCategories,
           customGroups: seedCustomGroups,
           orders: [],
+          lookbookImages: defaultLookbookImages,
+          coupons: [],
+          shippingZones: defaultShippingZones,
+          banners: [],
+          storeSettings: defaultStoreSettings,
         }),
 
       refreshFromSupabase: async () => {

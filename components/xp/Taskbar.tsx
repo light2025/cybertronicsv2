@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Volume2, VolumeX } from 'lucide-react';
 import { useXpStore } from '@/lib/store/xpStore';
 import { useCartStore } from '@/lib/store/cartStore';
+import { useSettingsStore } from '@/lib/store/settingsStore';
 import { apps } from './appRegistry';
 import { cn } from '@/lib/utils';
 
@@ -33,6 +34,8 @@ export default function Taskbar() {
   const openApp = useXpStore((s) => s.open);
   const startMenuOpen = useXpStore((s) => s.startMenuOpen);
   const cartCount = useCartStore((s) => s.items.reduce((n, i) => n + i.quantity, 0));
+  const soundEnabled = useSettingsStore((s) => s.soundEnabled);
+  const toggleSound = useSettingsStore((s) => s.toggleSound);
 
   const [time, setTime] = useState('');
   useEffect(() => {
@@ -71,7 +74,6 @@ export default function Taskbar() {
       <div className="flex items-center gap-[3px] px-1.5 overflow-x-auto flex-1 min-w-0 h-full">
         {windows.map((w) => {
           const def = apps[w.appId];
-          const Icon = def.Icon;
           const active = !w.minimized;
           return (
             <button
@@ -88,7 +90,8 @@ export default function Taskbar() {
                   : 'inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.15)',
               }}
             >
-              <Icon className="w-3.5 h-3.5 shrink-0" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={def.icon} alt="" className="w-3.5 h-3.5 shrink-0 object-contain" />
               <span className="truncate">{w.title}</span>
             </button>
           );
@@ -97,24 +100,36 @@ export default function Taskbar() {
 
       {/* System tray */}
       <div
-        className="h-full px-2 flex items-center gap-2 text-white text-[11px] shrink-0"
+        className="h-full px-2 flex items-center gap-1.5 text-white text-[11px] shrink-0"
         style={{
           background: TRAY_BG,
           borderLeft: '1px solid rgba(255,255,255,0.15)',
           boxShadow: 'inset 1px 0 0 rgba(0,0,0,0.2)',
-          minWidth: 54,
+          minWidth: 90,
         }}
       >
         <button
+          onClick={toggleSound}
+          className="w-5 h-5 grid place-items-center rounded-sm hover:bg-white/15"
+          aria-label={soundEnabled ? 'Mute sounds' : 'Unmute sounds'}
+          title={soundEnabled ? 'Sound: On (click to mute)' : 'Sound: Off (click to unmute)'}
+        >
+          {soundEnabled ? (
+            <Volume2 className="w-3.5 h-3.5" strokeWidth={2} />
+          ) : (
+            <VolumeX className="w-3.5 h-3.5 opacity-60" strokeWidth={2} />
+          )}
+        </button>
+        <button
           onClick={() => openApp('cart', { title: 'Shopping Cart' })}
-          className="relative w-6 h-6 grid place-items-center rounded-sm hover:bg-white/15"
+          className="relative w-5 h-5 grid place-items-center rounded-sm hover:bg-white/15"
           aria-label={`Shopping cart (${cartCount} item${cartCount !== 1 ? 's' : ''})`}
           title={`Shopping cart — ${cartCount} item${cartCount !== 1 ? 's' : ''}`}
         >
           <ShoppingCart className="w-3.5 h-3.5" strokeWidth={2} />
           {cartCount > 0 && (
             <span
-              className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] px-1 grid place-items-center rounded-full text-[9px] font-bold leading-none"
+              className="absolute -top-0.5 -right-0.5 min-w-[12px] h-[12px] px-0.5 grid place-items-center rounded-full text-[8px] font-bold leading-none"
               style={{
                 background: '#c44030',
                 color: '#fff',
@@ -126,7 +141,7 @@ export default function Taskbar() {
             </span>
           )}
         </button>
-        <span>{time}</span>
+        <span className="pl-0.5">{time}</span>
       </div>
     </div>
   );

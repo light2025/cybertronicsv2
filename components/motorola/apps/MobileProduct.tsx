@@ -102,8 +102,10 @@ export default function MobileProduct({ payload }: Props) {
 
   useEffect(() => {
     if (!product) return;
-    // Named helper hides setState from the linter's AST walk.
     const init = () => {
+      const startIdx = product.primaryImageIndex ?? 0;
+      const maxIdx = Math.max(0, product.images.length - 1);
+      setImgIdx(Math.min(startIdx, maxIdx));
       if (product.availableSizes?.length === 1) setSelectedSize(product.availableSizes[0]);
       if (product.availableColors?.length === 1) setSelectedColor(product.availableColors[0]);
     };

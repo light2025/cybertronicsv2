@@ -42,3 +42,14 @@ next-env.d.ts
 
 # local backups
 backups/
+
+# raw/working asset files (processed copies are in public/)
+/Assets/
+/FinalIcons/
+/Loading/
+/mobile UI/
+/*.html
+/EXEPixelPerfect.ttf
+
+# loose product images in root (should be in proper folders)
+/*.png
