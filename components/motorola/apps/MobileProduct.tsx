@@ -140,7 +140,11 @@ export default function MobileProduct({ payload }: Props) {
 
   const cat = categories.find((c) => c.id === product.category);
   const stock = STOCK_MAP[product.stockStatus];
-  const imgs = product.images.length > 0 ? product.images : [''];
+  // Images in hero order first, then videos appended
+  const imgs = [
+    ...(product.images.length > 0 ? product.images : ['']),
+    ...(product.videos ?? []),
+  ];
   const displayPrice = product.discountPrice ?? product.price;
 
   const hasSizes = (product.availableSizes?.length ?? 0) > 0;
@@ -186,11 +190,20 @@ export default function MobileProduct({ payload }: Props) {
         style={{ borderBottom: '1px solid #cdd8e8' }}
       >
         {imgs[imgIdx] ? (
-          <img
-            src={imgs[imgIdx]}
-            alt={product.title}
-            className="max-w-full max-h-full object-contain"
-          />
+          /\.(mp4|webm|mov|avi)(\?|$)/i.test(imgs[imgIdx]) ? (
+            <video
+              key={imgs[imgIdx]}
+              src={imgs[imgIdx]}
+              controls
+              className="max-w-full max-h-full"
+            />
+          ) : (
+            <img
+              src={imgs[imgIdx]}
+              alt={product.title}
+              className="max-w-full max-h-full object-contain"
+            />
+          )
         ) : (
           <div className="text-4xl">🖼️</div>
         )}
@@ -217,15 +230,23 @@ export default function MobileProduct({ payload }: Props) {
             </button>
 
             <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1">
-              {imgs.map((_, i) => (
-                <span
-                  key={i}
-                  className="w-1.5 h-1.5 rounded-full"
-                  style={{
-                    background: i === imgIdx ? '#fff' : 'rgba(255,255,255,0.5)',
-                    boxShadow: '0 0 1px rgba(0,0,0,0.4)',
-                  }}
-                />
+              {imgs.map((src, i) => (
+                /\.(mp4|webm|mov|avi)(\?|$)/i.test(src) ? (
+                  <span
+                    key={i}
+                    className="text-[8px] leading-none px-0.5"
+                    style={{ color: i === imgIdx ? '#fff' : 'rgba(255,255,255,0.5)' }}
+                  >▶</span>
+                ) : (
+                  <span
+                    key={i}
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{
+                      background: i === imgIdx ? '#fff' : 'rgba(255,255,255,0.5)',
+                      boxShadow: '0 0 1px rgba(0,0,0,0.4)',
+                    }}
+                  />
+                )
               ))}
             </div>
           </>

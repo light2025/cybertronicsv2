@@ -44,8 +44,35 @@
   --color-lcd-bg: #7BA226;
   --color-lcd-dark: #324C0D;
 
+  /* Cybertronic brand */
+  --color-cbtr-orange: #F57C20;
+  --color-cbtr-dark: #1B1F2A;
+  --color-cbtr-white: #FFFFFF;
+  --color-cbtr-blue: #4D77BE;
+  --color-cbtr-green: #8DC63F;
+
   /* Pixel font for mobile */
   --font-pixel: 'EXEPixelPerfect', monospace;
+}
+
+.ie-dark-bg {
+  background: #050505;
+  color: #ffffff;
+}
+
+.ie-glass {
+  background: rgba(27, 31, 42, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
+}
+
+.ie-grid-bg {
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(245, 124, 32, 0.15), transparent 32%),
+    radial-gradient(circle at 80% 25%, rgba(77, 119, 190, 0.12), transparent 30%),
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: auto, auto, 50px 50px, 50px 50px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -58,4 +85,17 @@
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
 }

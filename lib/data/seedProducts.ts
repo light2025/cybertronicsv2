@@ -16,9 +16,11 @@ export const seedCustomGroups: CustomGroup[] = [
 export const seedCategories: Category[] = [
   { id: 'cat_tshirts', title: 'T-Shirts', slug: 't-shirts', parentCategory: null, icon: '👕' },
   { id: 'cat_pants', title: 'Pants', slug: 'pants', parentCategory: null, icon: '👖' },
-  { id: 'cat_headwear', title: 'Headwear', slug: 'headwear', parentCategory: null, icon: '🧢' },
-  { id: 'cat_combo', title: 'Full Costume Combo', slug: 'full-costume-combo', parentCategory: null, icon: '🥋' },
-  { id: 'cat_footwear', title: 'Footwear', slug: 'footwear', parentCategory: null, icon: '👟' },
+  { id: 'cat_shorts', title: 'Shorts', slug: 'shorts', parentCategory: null, icon: '🩳' },
+  { id: 'cat_hoodies', title: 'Hoodies', slug: 'hoodies', parentCategory: null, icon: '🧥' },
+  { id: 'cat_socks', title: 'Socks', slug: 'socks', parentCategory: null, icon: '🧦' },
+  { id: 'cat_caps', title: 'Caps', slug: 'caps', parentCategory: null, icon: '🧢' },
+  { id: 'cat_headwear', title: 'Headwear', slug: 'headwear', parentCategory: null, icon: '👒' },
   { id: 'cat_accessories', title: 'Accessories', slug: 'accessories', parentCategory: null, icon: '🕶️' },
 ];
 

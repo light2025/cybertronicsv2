@@ -116,7 +116,12 @@ export default function ProductDetail({ winId, payload }: { winId: string; paylo
 
   const cat = categories.find((c) => c.id === product.category);
   const stock = STOCK_MAP[product.stockStatus];
-  const imgs = product.images.length > 0 ? product.images : [''];
+  // Images first (respecting order), then videos appended after
+  const allMedia = [
+    ...(product.images.length > 0 ? product.images : ['']),
+    ...(product.videos ?? []),
+  ];
+  const imgs = allMedia;
 
   const hasSizes = (product.availableSizes?.length ?? 0) > 0;
   const hasColors = (product.availableColors?.length ?? 0) > 0;
@@ -155,34 +160,64 @@ export default function ProductDetail({ winId, payload }: { winId: string; paylo
       >
         <div className="flex-1 flex items-center justify-center p-2 overflow-hidden">
           {imgs[imgIdx] ? (
-            <img
-              src={imgs[imgIdx]}
-              alt={product.title}
-              className="max-w-full max-h-full object-contain rounded"
-              style={{ border: '1px solid #aac' }}
-            />
+            /\.(mp4|webm|mov|avi)(\?|$)/i.test(imgs[imgIdx]) ? (
+              <video
+                key={imgs[imgIdx]}
+                src={imgs[imgIdx]}
+                controls
+                className="max-w-full max-h-full rounded"
+                style={{ border: '1px solid #aac' }}
+              />
+            ) : (
+              <img
+                src={imgs[imgIdx]}
+                alt={product.title}
+                className="max-w-full max-h-full object-contain rounded"
+                style={{ border: '1px solid #aac' }}
+              />
+            )
           ) : (
             <div className="w-full h-32 bg-gray-200 rounded flex items-center justify-center text-3xl">🖼️</div>
           )}
         </div>
         {imgs.length > 1 && (
-          <div className="flex items-center justify-center gap-1 py-1 px-2">
-            <button
-              onClick={() => setImgIdx((i) => Math.max(0, i - 1))}
-              disabled={imgIdx === 0}
-              className="p-0.5 hover:bg-[#316ac5] hover:text-white rounded disabled:opacity-30"
-            >
-              <ChevronLeft className="w-3.5 h-3.5" />
-            </button>
-            <span className="text-[10px] text-gray-500">{imgIdx + 1}/{imgs.length}</span>
-            <button
-              onClick={() => setImgIdx((i) => Math.min(imgs.length - 1, i + 1))}
-              disabled={imgIdx === imgs.length - 1}
-              className="p-0.5 hover:bg-[#316ac5] hover:text-white rounded disabled:opacity-30"
-            >
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
+          <>
+            <div className="flex items-center justify-center gap-1 py-1 px-2">
+              <button
+                onClick={() => setImgIdx((i) => Math.max(0, i - 1))}
+                disabled={imgIdx === 0}
+                className="p-0.5 hover:bg-[#316ac5] hover:text-white rounded disabled:opacity-30"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+              <span className="text-[10px] text-gray-500">{imgIdx + 1}/{imgs.length}</span>
+              <button
+                onClick={() => setImgIdx((i) => Math.min(imgs.length - 1, i + 1))}
+                disabled={imgIdx === imgs.length - 1}
+                className="p-0.5 hover:bg-[#316ac5] hover:text-white rounded disabled:opacity-30"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            {/* Thumbnail strip */}
+            <div className="flex gap-1 px-2 pb-2 overflow-x-auto">
+              {imgs.map((src, i) => (
+                <button
+                  key={i}
+                  onClick={() => setImgIdx(i)}
+                  className={`shrink-0 w-9 h-9 rounded overflow-hidden border transition-all ${
+                    i === imgIdx ? 'border-[#316ac5] opacity-100' : 'border-gray-300 opacity-60 hover:opacity-90'
+                  }`}
+                >
+                  {/\.(mp4|webm|mov|avi)(\?|$)/i.test(src) ? (
+                    <div className="w-full h-full bg-gray-800 flex items-center justify-center text-[8px] text-white">▶</div>
+                  ) : (
+                    <img src={src} alt="" className="w-full h-full object-cover" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </>
         )}
       </div>
 

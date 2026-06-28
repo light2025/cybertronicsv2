@@ -53,3 +53,5 @@ backups/
 
 # loose product images in root (should be in proper folders)
 /*.png
+.agents/
+.claude/skills/

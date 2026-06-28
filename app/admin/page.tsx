@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   Package,
@@ -115,6 +115,28 @@ export default function AdminDashboard() {
 
   const v = (n: number) => (hydrated ? n : '—');
 
+  const [seedState, setSeedState] = useState<'idle' | 'running' | 'done' | 'error'>('idle');
+  const [seedMsg, setSeedMsg] = useState('');
+
+  const runSeed = async () => {
+    setSeedState('running');
+    setSeedMsg('');
+    try {
+      const res = await fetch('/api/admin/seed-cloth', { method: 'POST' });
+      const json = await res.json();
+      if (json.ok) {
+        setSeedState('done');
+        setSeedMsg(`Seeded ${json.results?.length ?? 0} products into Supabase.`);
+      } else {
+        setSeedState('error');
+        setSeedMsg(json.error ?? 'Unknown error');
+      }
+    } catch (e) {
+      setSeedState('error');
+      setSeedMsg(e instanceof Error ? e.message : 'Fetch failed');
+    }
+  };
+
   const productColumns: Column<Product>[] = [
     {
       key: 'title',
@@ -209,6 +231,20 @@ export default function AdminDashboard() {
           <p className="text-[13px] text-gray-600">
             Welcome back. Here&apos;s the state of your store.
           </p>
+        </div>
+        <div className="flex items-center gap-3">
+          {seedMsg && (
+            <span className={`text-[11px] px-2 py-1 rounded-md ${seedState === 'error' ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-700'}`}>
+              {seedMsg}
+            </span>
+          )}
+          <button
+            onClick={runSeed}
+            disabled={seedState === 'running'}
+            className="px-3 py-1.5 rounded-lg text-[12px] font-medium bg-cyber/10 text-cyber-dark border border-cyber/30 hover:bg-cyber/20 disabled:opacity-50 transition-colors"
+          >
+            {seedState === 'running' ? 'Seeding…' : '⬆ Seed Cloth Products'}
+          </button>
         </div>
       </div>
 

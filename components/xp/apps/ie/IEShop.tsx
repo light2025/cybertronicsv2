@@ -4,10 +4,9 @@ import { useDataStore, useHydrated } from '@/lib/store/dataStore';
 import ProductCard from '../ProductCard';
 import { useIE } from './IEContext';
 
-const HEAD_BG = '#ffe05a';
-const HEAD_TEXT = '#5a3a00';
-const TABLE_BORDER = '#a07000';
-const LINK_BLUE = '#0050a0';
+const CBTR_ORANGE = '#F57C20';
+const CBTR_DARK = '#1B1F2A';
+const DARK_BG = '#050505';
 
 export default function IEShop({ categorySlug }: { categorySlug?: string }) {
   const ie = useIE();
@@ -16,7 +15,7 @@ export default function IEShop({ categorySlug }: { categorySlug?: string }) {
   const hydrated = useHydrated();
 
   if (!hydrated) {
-    return <div className="p-8 text-center text-[12px] text-gray-500">Loading shop…</div>;
+    return <div className="p-8 text-center text-[12px]" style={{ background: DARK_BG, color: '#fff' }}>Loading shop…</div>;
   }
 
   if (categorySlug) {
@@ -24,24 +23,22 @@ export default function IEShop({ categorySlug }: { categorySlug?: string }) {
     const catProducts = products.filter((p) => p.category === cat?.id);
 
     return (
-      <div className="p-3 bg-white">
-        <div className="mb-3 text-[11px] flex items-center gap-1">
+      <div className="p-3" style={{ background: DARK_BG }}>
+        <div className="mb-3 text-[11px] flex items-center gap-1" style={{ color: '#fff' }}>
           <a
             href="#"
             onClick={(e) => { e.preventDefault(); ie?.navigate('cybertronics://shop'); }}
-            className="hover:underline"
-            style={{ color: LINK_BLUE }}
+            className="hover:text-orange-400 transition-colors"
+            style={{ color: CBTR_ORANGE }}
           >
             Shop
           </a>
-          <span className="text-gray-400">›</span>
-          <span className="font-bold">
-            {cat?.icon} {cat?.title ?? 'Unknown category'}
-          </span>
+          <span>/</span>
+          <span className="font-bold">{cat?.icon} {cat?.title ?? 'Unknown'}</span>
         </div>
         {catProducts.length === 0 ? (
-          <div className="py-12 text-center text-[12px] text-gray-500">
-            No products in this category yet.
+          <div className="py-8 text-center text-[11px]" style={{ color: 'rgba(255,255,255,.5)' }}>
+            No products in this category.
           </div>
         ) : (
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -55,30 +52,23 @@ export default function IEShop({ categorySlug }: { categorySlug?: string }) {
   }
 
   return (
-    <div className="p-3 bg-white">
-      <div
-        className="px-2 py-1 font-bold text-[12px] mb-3"
-        style={{
-          background: HEAD_BG,
-          color: HEAD_TEXT,
-          border: `1px solid ${TABLE_BORDER}`,
-        }}
-      >
-        Shop by Category
+    <div className="p-3" style={{ background: DARK_BG }}>
+      <div className="px-3 py-2 font-bold text-[12px] mb-3 rounded" style={{ background: `linear-gradient(to bottom, ${CBTR_ORANGE} 0%, #E86A0F 100%)`, color: '#fff' }}>
+        ◆ SHOP BY CATEGORY
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-        {categories.map((c) => {
+        {categories.filter((c) => c.parentCategory === null).map((c) => {
           const count = products.filter((p) => p.category === c.id).length;
           return (
             <button
               key={c.id}
               onClick={() => ie?.navigate(`cybertronics://shop/${c.slug}`)}
-              className="flex flex-col items-center gap-1 p-3 bg-white hover:bg-yellow-50 active:bg-yellow-100"
-              style={{ border: '1px solid #aac', borderRadius: 2 }}
+              className="flex flex-col items-center gap-1 p-3 rounded transition-all hover:opacity-80"
+              style={{ background: 'rgba(245,124,32,.1)', border: `1px solid rgba(245,124,32,.2)` }}
             >
               <span className="text-3xl">{c.icon ?? '📁'}</span>
-              <span className="text-[11px] font-bold text-gray-800">{c.title}</span>
-              <span className="text-[10px] text-gray-500">
+              <span className="text-[10px] font-bold" style={{ color: '#fff' }}>{c.title}</span>
+              <span className="text-[9px]" style={{ color: 'rgba(255,255,255,.6)' }}>
                 {count} item{count !== 1 ? 's' : ''}
               </span>
             </button>
